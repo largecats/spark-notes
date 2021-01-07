@@ -74,15 +74,19 @@
 
 ​		"Encoders convert data in off-heap memory from Spark’s internal Tungsten format to JVM Java objects. In other words, they serialize and deserialize Dataset objects from Spark’s internal format to JVM objects, including primitive data types. For example, an Encoder[T] will convert from Spark’s internal Tungsten format to Dataset[T]."
 
-**Catalyst optimizer** A core component in the Spark SQL engine that takes a computational query and converts it into an execution plan. It has four stages: Analysis, logical optimization, physical planning, and code generation.
+**Catalyst optimizer** A core component in the Spark SQL engine that takes a computational query and converts it into an execution plan. It has four stages: Analysis (resolve references), logical optimization, physical planning, and code generation.
 
 **Tungsten** The other core component in the Spark SQL engine that acts as a compiler to generate efficient and compact Java code to run on each machine in the cluster (whole-stage code generation). 
 
 ​		It has a new internal row-based format to lay out Datasets and DataFrames in off-heap memory using offsets and pointers. Allocating memory off-heap means Spark is less encumbered by JVM's garbage collection.
 
-**Broadcast hash join** A join strategy where the smaller dataset is broadcasted by the driver to all executors and subsequently joined with the larger dataset on each executor.The smaller dataset should fit in driver's and executor's memory. Spark uses broadcast hash join if the smaller data set is less than spark.sql.autoBroadcastJoinThreshold (default is 10mb).
-
 **Catalog** A high-level abstraction in Spark SQL for storing metadata. Accessible via `spark.catalog`.
+
+##### Joins
+
+**Broadcast hash join** A join strategy for joining small table to large table. The smaller dataset is broadcasted by the driver to all executors and subsequently joined with the larger dataset on each executor.The smaller dataset should fit in driver's and executor's memory. Spark uses broadcast hash join if the smaller data set is less than spark.sql.autoBroadcastJoinThreshold (default is 10mb).
+
+**Sort merge join** A join strategy for joining two large tables. In sort phase, both datasets are shuffled based on the join key and sorted so that the rows with the same key are in the same partition. The merge phase iterates over the two tables and merge two rows if they have the same join key.
 
 
 
