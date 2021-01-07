@@ -70,20 +70,26 @@
 
 **View** Temporary view created from tables that don't actually hold the data and disappear after the Spark application terminates. They may be global (accessible to all Spark sessions in cluster) or session-scoped.
 
-**Encoder** An efficient mechanism for serializing and deserializing between the JVM and Spark's internal Tungsten format.
-
-​		"Encoders convert data in off-heap memory from Spark’s internal Tungsten format to JVM Java objects. In other words, they serialize and deserialize Dataset objects from Spark’s internal format to JVM objects, including primitive data types. For example, an Encoder[T] will convert from Spark’s internal Tungsten format to Dataset[T]."
-
 **Catalyst optimizer** A core component in the Spark SQL engine that takes a computational query and converts it into an execution plan. It has four stages: Analysis (resolve references), logical optimization, physical planning, and code generation.
 
-<div style="text-align: center"><img src="./images/catalyst.png" width="600px" /></div>
+<div style="text-align: center"><img src="./images/catalyst.png" width="500px" /></div>
 <div align="center">
 <sup></sup>
 </div>
 
 **Tungsten** The other core component in the Spark SQL engine that acts as a compiler to generate efficient and compact Java code to run on each machine in the cluster (whole-stage code generation). 
 
-​		It has a new internal row-based format to lay out Datasets and DataFrames in off-heap memory using offsets and pointers. Allocating memory off-heap means Spark is less encumbered by JVM's garbage collection.
+**Tungsten binary format** Spark's internal binary format for storing objects in Java's off-heap memory using pointer arithmetic and offsets.
+
+* off-heap: Unhindered by JVM's garbage collection.
+* Pointer arithmetic: Encoders can quickly serialize objects by traversing across memory.
+
+<div style="text-align: center"><img src="./images/internal_binary_format.png" width="600px" /></div>
+<div align="center">
+<sup></sup>
+</div>
+
+**Encoder** An efficient mechanism (better than Java's own serializer operating on heap memory) for serializing and deserializing between JVM objects and Spark's internal Tungsten binary format.
 
 **Catalog** A high-level abstraction in Spark SQL for storing metadata. Accessible via `spark.catalog`.
 
@@ -127,7 +133,7 @@
 
 ### PIG
 
-**PIG** A high-level platform for creating programs that run on Hadoop. Can execute its Hadoop jobs in MapReduce, Spark, etc.
+**PIG** A high-level (MapReduce) platform for creating programs that run on Hadoop. Can execute its Hadoop jobs in MapReduce, Spark, etc.
 
 **PIG Latin** Language for the PIG platform. Abstracts the programming from the Java MapReduce idiom into a notation which makes MapReduce programming high level, similar to that of SQL for relational database management systems (RDBMS).  Supports UDFs in Java, Python, etc.
 
