@@ -76,6 +76,11 @@
 
 **Catalyst optimizer** A core component in the Spark SQL engine that takes a computational query and converts it into an execution plan. It has four stages: Analysis (resolve references), logical optimization, physical planning, and code generation.
 
+<div style="text-align: center"><img src="./images/catalyst.png" width="600px" /></div>
+<div align="center">
+<sup></sup>
+</div>
+
 **Tungsten** The other core component in the Spark SQL engine that acts as a compiler to generate efficient and compact Java code to run on each machine in the cluster (whole-stage code generation). 
 
 ​		It has a new internal row-based format to lay out Datasets and DataFrames in off-heap memory using offsets and pointers. Allocating memory off-heap means Spark is less encumbered by JVM's garbage collection.
