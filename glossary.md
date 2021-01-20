@@ -2,7 +2,7 @@
 
 ## Spark
 
-#### APIs
+### APIs
 
 **RDD** Immutable distributed collection of objects with lineage dependency (i.e., how the RDD is constructed), partitioned across nodes in the cluster that can be operated in parallel. 
 
@@ -32,8 +32,7 @@
 <div align="center">
 <sup></sup>
 </div>
-
-#### Storage
+### Storage
 
 **Parquet** A column-oriented data storage format of the Apache Hadoop ecosystem.
 
@@ -41,10 +40,22 @@
 <div align="center">
 <sup></sup>
 </div>
-
 **snappy.parquet** Data stored in parquet. compressed using the [snappy compression](https://en.wikipedia.org/wiki/Snappy_(compression)).
 
-#### Components/Configurations
+### Partition
+
+**Disk partition** Partitions of data in hive table stored in HDFS. E.g., `df.partitionBy($"country")` will generate xxxx/country=abc/, xxx/country=xyz/ folders by country. (See [here](https://mungingdata.com/apache-spark/partitionby/))
+
+**Memory partition** Partitions of data in memory used by computation in Spark. E.g., 
+
+* Changing memory partitions:`df.repartition(100)` will split data to 100 partitions for Spark to work on, and `df.coalesce(10)` will collapse data to 10 partitions (if original number of partitions is larger than `n`, then `df.coalesce(n)` won't change the partitions).
+* Writing partitions to disk: `df.repartition(200).write.parquet("xxx")` will generate 200 parquet files on disk.
+* Reading partitions from disk: Partitions of data read from `spark.read.parquet` are determined by (see [here](https://medium.com/swlh/building-partitions-for-processing-data-files-in-apache-spark-2ca40209c9b7))
+  * spark.default.parallelism (default is the total number of executor cores of the Spark application, see [here](https://spark.apache.org/docs/2.3.0/configuration.html))
+  * spark.sql.files.maxPartitionBytes (default 128MB)
+  * spark.sql.files.openCostInBytes (default 4MB)
+
+### Components
 
 **Worker node** A member of the cluster. It can be a virtual machine (JVM) or a physical computer.
 
@@ -52,9 +63,11 @@
 
 **Shuffle operation** Operations in Spark that trigger shuffle events. E.g., `repartition`, `coalesce`, `reduceBy`, `groupBy`, `join`. https://spark.apache.org/docs/latest/rdd-programming-guide.html#shuffle-operations
 
+### Configurations
+
 **spark.sql.shuffle.partitions** The number of partitions to create after shuffling triggered by wide transformations. Large datasets might need higher values, while small datasets need a smaller number to save time by avoiding creating empty shuffle partitions that are not used: https://www.coursera.org/lecture/spark-sql/shuffle-partitions-Y2TDV
 
-#### Spark SQL
+### Spark SQL
 
 **Narrow transformation**  Any transformation where a single output partition can be computed from a single input partition. E.g., `select`, `filter` that can be done to each partition in parallel, since performing the operation in a single partition does not require information from other partitions.
 
@@ -87,7 +100,7 @@
 
 **Catalog** A high-level abstraction in Spark SQL for storing metadata. Accessible via `spark.catalog`.
 
-##### Joins
+#### Joins
 
 **Broadcast hash join** A join strategy for joining small table to large table. The smaller dataset is broadcasted by the driver to all executors and subsequently joined with the larger dataset on each executor.The smaller dataset should fit in driver's and executor's memory. Spark uses broadcast hash join if the smaller data set is less than spark.sql.autoBroadcastJoinThreshold (default is 10mb).
 
