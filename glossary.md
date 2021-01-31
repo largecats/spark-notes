@@ -4,6 +4,8 @@
 
 ### APIs
 
+#### Low-level APIs
+
 **RDD** Immutable distributed collection of objects with lineage dependency (i.e., how the RDD is constructed), partitioned across nodes in the cluster that can be operated in parallel. 
 
 * The RDD API is not structured.
@@ -11,13 +13,15 @@
 
 **Row** A generic untyped JVM object type in Spark, holding a collection of different types of fields that can be accessed using an index.
 
-**DataFrame** A structured collection of generic objects Dataset[Row] (untyped).
+#### Structured APIs
+
+**DataFrame** A structured collection of generic objects; each record/row is a Row object, so a DataFrame is also a Dataset[Row] (untyped).
 
 * A DataFrame is an untyped view of Dataset.
 * Python and R only support the untyped DataFrame API.
 * Can let Spark infer schema.
 
-**Dataset** A structured collection of strongly-typed JVM objects, dictated by a case class you define in Scala or a class in Java.
+**Dataset** A structured collection of strongly-typed JVM objects; the type of each record/row is defined by a Scala case class or JavaBean.
 
 * Only supported in Scala and Java.
 * Schema must be supplied.
@@ -42,7 +46,7 @@
 </div>
 **snappy.parquet** Data stored in parquet. compressed using the [snappy compression](https://en.wikipedia.org/wiki/Snappy_(compression)).
 
-### Partition
+#### Partition
 
 **Disk partition** Partitions of data in hive table stored in HDFS. E.g., `df.partitionBy($"country")` will generate 
 
@@ -52,7 +56,7 @@
 /country=c/
 ```
 
-folders by country, see [here](https://mungingdata.com/apache-spark/partitionby/).
+folders by country, see [here](https://mungingdata.com/apache-spark/partitionby/). When reading data, can filter by partition to skip unneeded data.
 
 **Memory partition** Partitions of data in memory used by computation in Spark. E.g., 
 
@@ -65,6 +69,15 @@ folders by country, see [here](https://mungingdata.com/apache-spark/partitionby/
   * spark.default.parallelism (default is the total number of executor cores of the Spark application, see [here](https://spark.apache.org/docs/2.3.0/configuration.html))
   * spark.sql.files.maxPartitionBytes (default 128MB)
   * spark.sql.files.openCostInBytes (default 4MB)
+
+#### Bucketing
+
+A mechanism to pre-partition data according to how data will be used later, so that expensive shuffles may be avoided.
+
+**bucketBy(numberOfBuckets, columnToBucketBy)** Distributes data into a fixed number of buckets, and data with the same bucket ID will be in one partition.
+
+* bucketing: the number of unique values is not limited
+* partitioning: the number of unique values is limited
 
 ### Components
 
@@ -117,8 +130,10 @@ https://databricks.com/blog/2015/04/13/deep-dive-into-spark-sqls-catalyst-optimi
 <div align="center">
 <sup></sup>
 </div>
+**Encoder** Maps the Scala/Java/Python/R types to Spark's internal type system. It directs an efficient mechanism (better than Java's own serializer operating on heap memory) for serializing and deserializing between JVM objects and Spark's internal Tungsten binary format.
 
-**Encoder** An efficient mechanism (better than Java's own serializer operating on heap memory) for serializing and deserializing between JVM objects and Spark's internal Tungsten binary format.
+* With Dataset, Encoder helps serializing Scala/Java objects to case class/JavaBean
+* With DataFrame, Encoder helps serializing Python/R objects to Row
 
 **Catalog** A high-level abstraction in Spark SQL for storing metadata. Accessible via `spark.catalog`.
 
