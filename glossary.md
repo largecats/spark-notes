@@ -133,7 +133,8 @@ https://databricks.com/blog/2015/04/13/deep-dive-into-spark-sqls-catalyst-optimi
 **Broadcast hash join.** A join strategy for joining small table to large table. The smaller dataset is broadcasted by the driver to all executors and subsequently joined with the larger dataset on each executor.The smaller dataset should fit in driver's and executor's memory. Spark uses broadcast hash join if the smaller data set is less than spark.sql.autoBroadcastJoinThreshold (default is 10mb).
 
 **Sort merge join.** A join strategy for joining two large tables. In sort phase, both datasets are shuffled based on the join key and sorted so that the rows with the same key are in the same partition. The merge phase iterates over the two tables and merge two rows if they have the same join key.
-### Structured Streaming
+
+### Structured Streaming
 
 **Stream processing.** Continuous processing of endless streams of data.
 
@@ -169,8 +170,6 @@ https://databricks.com/blog/2015/04/13/deep-dive-into-spark-sqls-catalyst-optimi
 - Append mode: Only new rows appended since the last trigger will be written to external storage.
 - Update mode: Only rows updated since the last trigger will be changed in external storage.
 - Complete mode: Entire updated result table will be written to external storage.
-
-
 
 ## Hadoop Eco-system
 
