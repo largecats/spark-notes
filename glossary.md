@@ -41,6 +41,11 @@
 **snappy.parquet.** Data stored in parquet. compressed using the [snappy compression](https://en.wikipedia.org/wiki/Snappy_(compression)).
 
 #### Partition
+**Memory partition** Partitions of data in memory used by computation in Spark. Can be changed by 
+
+* `df.coalesce(n)`: Collapse to n partitions.
+* ``df.repartition(n)`: Full shuffle and redistribute data into n partitions.
+* `df.repartition($"country")`: Partition based on column "country".
 
 **Disk partition.** Partitions of data in hive table stored in HDFS. E.g., `df.partitionBy($"country")` will generate 
 
@@ -49,20 +54,12 @@
 /country=b/
 /country=c/
 ```
-
 folders by country, see [here](https://mungingdata.com/apache-spark/partitionby/). When reading data, can filter by partition to skip unneeded data.
-
-**Memory partition.** Partitions of data in memory used by computation in Spark. E.g., 
-
-* Changing memory partitions:`df.repartition(100)` will split data to 100 partitions for Spark to work on, and `df.coalesce(10)` will collapse data to 10 partitions (if original number of partitions is larger than `n`, then `df.coalesce(n)` won't change the partitions).
-* Writing partitions to disk
-  * `df.repartition(200).write.parquet("xxx")` will generate 200 parquet files on disk, data in each file is distributed randomly.
-  * `df.repartition(5).write.partitionBy($"country").parquet("xxx")` will first generate 5 partitions of randomly distributed data and then split each partition based on country. That is, for each of the 5 partitions, there will be 1 separate parquet file for each country to put under `/country=a,b,c`, etc. The result is 1 folder for each unique country, which contains up to 5 parquet files (if a partition has no record, no parquet file will be generated for it), so the maximum number of parquet files is 5 * number of countries.
-  * `df.repartition($"country").write.option("maxRecordsPerFile", 10).partitionBy($"country").parquet("xxx")` will create 1 folder of parquet files for each country, and each parquet files has <= 10 records.
 * Reading partitions from disk: Partitions of data read from `spark.read.parquet` are determined by (see [here](https://medium.com/swlh/building-partitions-for-processing-data-files-in-apache-spark-2ca40209c9b7))
   * spark.default.parallelism (default is the total number of executor cores of the Spark application, see [here](https://spark.apache.org/docs/2.3.0/configuration.html))
   * spark.sql.files.maxPartitionBytes (default 128MB)
   * spark.sql.files.openCostInBytes (default 4MB)
+
 
 #### Bucketing
 
@@ -170,6 +167,7 @@ https://databricks.com/blog/2015/04/13/deep-dive-into-spark-sqls-catalyst-optimi
 - Append mode: Only new rows appended since the last trigger will be written to external storage.
 - Update mode: Only rows updated since the last trigger will be changed in external storage.
 - Complete mode: Entire updated result table will be written to external storage.
+
 
 ## Hadoop Eco-system
 
